@@ -1,7 +1,7 @@
 from enum import Enum
 from functools import lru_cache
 from typing import Optional
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -82,7 +82,11 @@ class Settings(BaseSettings):
     REWARDED_AD_ELIGIBLE_FEATURES: str = "full_solution,social_research"
 
     # ── Agents service ──────────────────────────────────────────────────────
-    AGENTS_BASE_URL: str = "http://localhost:8000"
+    AGENTS_BASE_URL: str = Field(
+        default="http://localhost:8000",
+        validation_alias=AliasChoices("AGENTS_URL", "AGENTS_BASE_URL"),
+        description="Internal base URL for the agents service (injected via Vercel service binding or local .env)",
+    )
 
     @property
     def cors_origins_list(self) -> list[str]:

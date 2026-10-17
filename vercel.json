@@ -1,0 +1,39 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "agents": {
+      "root": "agents",
+      "framework": "fastapi"
+    },
+    "backend": {
+      "root": "backend",
+      "framework": "fastapi",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "agents",
+          "format": "url",
+          "env": "AGENTS_URL"
+        }
+      ]
+    },
+    "frontend": {
+      "root": "frontend",
+      "framework": "vite"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "frontend"
+      }
+    }
+  ]
+}

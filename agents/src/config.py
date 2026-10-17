@@ -154,7 +154,6 @@ class Settings(BaseSettings):
     MAX_DIFF_BYTES: int = 60000
     SEVERITY_NOTIFICATION_THRESHOLD: SeverityLevel = SeverityLevel.HIGH
 
-<<<<<<< Updated upstream
     # CORS — comma-separated list of allowed frontend origins.
     # In .env use:  ALLOWED_ORIGINS=http://localhost:3000,https://app.example.com
     # Stored as a plain string; split to list at the CORS middleware call site.
@@ -164,23 +163,11 @@ class Settings(BaseSettings):
     )
 
     @property
-    def allowed_origins_list(self) -> list:
-        """Return ALLOWED_ORIGINS as a split, stripped list of origin strings."""
-        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",") if o.strip()]
+    def allowed_origins_list(self) -> list[str]:
+        """Return ALLOWED_ORIGINS or CORS_ORIGINS as a split, stripped list of origin strings."""
+        origins = self.ALLOWED_ORIGINS or self.CORS_ORIGINS
+        return [o.strip() for o in origins.split(",") if o.strip()]
 
-    @field_validator("GITHUB_WEBHOOK_SECRET")
-    @classmethod
-    def validate_webhook_secret_in_production(cls, v: str, info) -> str:
-        """Prevent startup in production if the webhook secret is the known public default."""
-        # info.data is populated with already-validated fields
-        env = info.data.get("ENVIRONMENT", Environment.DEVELOPMENT)
-        if env == Environment.PRODUCTION and v == "mock_webhook_secret_for_local_testing":
-            raise ValueError(
-                "GITHUB_WEBHOOK_SECRET must be overridden in production. "
-                "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
-            )
-        return v
-=======
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
@@ -188,7 +175,18 @@ class Settings(BaseSettings):
     @property
     def rewarded_ad_features_list(self) -> list[str]:
         return [f.strip() for f in self.REWARDED_AD_ELIGIBLE_FEATURES.split(",") if f.strip()]
->>>>>>> Stashed changes
+
+    @field_validator("GITHUB_WEBHOOK_SECRET")
+    @classmethod
+    def validate_webhook_secret_in_production(cls, v: str, info) -> str:
+        """Prevent startup in production if the webhook secret is the known public default."""
+        env = info.data.get("ENVIRONMENT", Environment.DEVELOPMENT)
+        if env == Environment.PRODUCTION and v == "mock_webhook_secret_for_local_testing":
+            raise ValueError(
+                "GITHUB_WEBHOOK_SECRET must be overridden in production. "
+                "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
+            )
+        return v
 
 
 @lru_cache()

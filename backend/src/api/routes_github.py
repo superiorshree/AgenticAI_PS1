@@ -152,7 +152,7 @@ async def _forward_to_agents(payload: dict, event_type: str, delivery_id: Option
             headers["X-Hub-Signature-256"] = f"sha256={mac.hexdigest()}"
 
             resp = await client.post(
-                f"{s.AGENTS_BASE_URL}/api/v1/webhooks/github",
+                f"{s.AGENTS_BASE_URL.rstrip('/')}/api/v1/webhooks/github",
                 content=body_bytes,
                 headers=headers,
             )
